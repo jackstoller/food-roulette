@@ -28,6 +28,7 @@ export default function App() {
     handleReroll,
     handleBack,
     togglePrice,
+    toggleCuisine,
   } = useRoulette(MOCK_PLACES);
 
   useEffect(() => {
@@ -102,8 +103,8 @@ export default function App() {
 
           <CuisineFilter 
             cuisines={CUISINES}
-            selectedCuisine={filters.cuisine}
-            onSelect={(cuisine) => setFilters({...filters, cuisine})}
+            selectedCuisines={filters.cuisine}
+            onToggle={toggleCuisine}
           />
 
           <div className="grid grid-cols-2 gap-4 mb-8">

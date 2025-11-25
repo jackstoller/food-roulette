@@ -5,7 +5,7 @@ export function useRoulette(places: Place[]) {
   const [view, setView] = useState<ViewState>('landing');
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [filters, setFilters] = useState<Filters>({
-    cuisine: "Any",
+    cuisine: ["Any"],
     price: [2],
     openNow: true,
     radius: 5,
@@ -13,7 +13,7 @@ export function useRoulette(places: Place[]) {
 
   const filterPlaces = (filters: Filters): Place[] => {
     return places.filter(place => {
-      const cuisineMatch = filters.cuisine === "Any" || place.cuisine === filters.cuisine;
+      const cuisineMatch = filters.cuisine.includes("Any") || filters.cuisine.includes(place.cuisine);
       const priceMatch = filters.price.includes(place.price);
       const openMatch = !filters.openNow || place.open;
       return cuisineMatch && priceMatch && openMatch;
@@ -55,6 +55,27 @@ export function useRoulette(places: Place[]) {
     });
   };
 
+  const toggleCuisine = (cuisine: string) => {
+    setFilters(prev => {
+      if (cuisine === "Any") {
+        return { ...prev, cuisine: ["Any"] };
+      }
+      
+      let newCuisines = prev.cuisine.filter(c => c !== "Any");
+      
+      if (newCuisines.includes(cuisine)) {
+        newCuisines = newCuisines.filter(c => c !== cuisine);
+        if (newCuisines.length === 0) {
+          newCuisines = ["Any"];
+        }
+      } else {
+        newCuisines = [...newCuisines, cuisine];
+      }
+      
+      return { ...prev, cuisine: newCuisines };
+    });
+  };
+
   return {
     view,
     setView,
@@ -65,5 +86,6 @@ export function useRoulette(places: Place[]) {
     handleReroll,
     handleBack,
     togglePrice,
+    toggleCuisine,
   };
 }

@@ -18,7 +18,7 @@ export interface Cuisine {
 }
 
 export interface Filters {
-  cuisine: string;
+  cuisine: string[];
   price: number[];
   openNow: boolean;
   radius: number;
