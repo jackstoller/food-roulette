@@ -1,19 +1,21 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { User, Dice5, ChevronLeft } from 'lucide-react';
-import type { Place, Cuisine } from './types';
-import { api } from './api/places';
-import { useRoulette } from './hooks/useRoulette';
-import MapView from './components/MapView';
-import CuisineFilter from './components/CuisineFilter';
-import PriceFilter from './components/PriceFilter';
-import TimeFilter from './components/TimeFilter';
-import ProfileMenu from './components/ProfileMenu';
-import SlotMachineLoader from './components/SlotMachineLoader';
-import EmptyState from './components/EmptyState';
-import ResultView from './components/ResultView';
-import './styles/animations.css';
+import type { Place, Cuisine } from '@/types';
+import { api } from '@/api/places';
+import { useRoulette } from '@/src/hooks/useRoulette';
+import MapView from '@/src/components/MapView';
+import CuisineFilter from '@/src/components/CuisineFilter';
+import PriceFilter from '@/src/components/PriceFilter';
+import TimeFilter from '@/src/components/TimeFilter';
+import ProfileMenu from '@/src/components/ProfileMenu';
+import SlotMachineLoader from '@/src/components/SlotMachineLoader';
+import EmptyState from '@/src/components/EmptyState';
+import ResultView from '@/src/components/ResultView';
+import '@/src/styles/animations.css';
 
-export default function App() {
+export default function Home() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [locationName, setLocationName] = useState("Downtown District");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
@@ -50,7 +52,7 @@ export default function App() {
         setError(null);
       } catch (err) {
         console.error('Failed to fetch data:', err);
-        setError('Failed to connect to server. Please ensure the backend is running.');
+        setError('Failed to load data. Please refresh the page.');
       } finally {
         setLoading(false);
       }
@@ -67,9 +69,8 @@ export default function App() {
           setUserLocation({ lat: latitude, lng: longitude });
           setLocationName("Current Location");
         },
-        (error) => {
+        () => {
           console.log('Location access denied, using default location');
-          // Keep default location
         }
       );
     }
@@ -105,7 +106,7 @@ export default function App() {
       <div className="w-full h-screen bg-gray-50 flex items-center justify-center p-6">
         <div className="text-center max-w-md">
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">Connection Error</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Error</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button 
             onClick={() => window.location.reload()}

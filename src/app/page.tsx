@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { User, Dice5, ChevronLeft } from 'lucide-react';
-import { MOCK_PLACES, CUISINES } from '../data/mockData';
+import type { Place, Cuisine } from '@/types';
+import { api } from '@/api/places';
 import { useRoulette } from '../hooks/useRoulette';
 import MapView from '../components/MapView';
 import CuisineFilter from '../components/CuisineFilter';
@@ -18,6 +19,10 @@ export default function Home() {
   const [locationName, setLocationName] = useState("Downtown District");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
+  const [places, setPlaces] = useState<Place[]>([]);
+  const [cuisines, setCuisines] = useState<Cuisine[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   const {
     view,
@@ -30,7 +35,30 @@ export default function Home() {
     handleBack,
     togglePrice,
     toggleCuisine,
-  } = useRoulette(MOCK_PLACES);
+  } = useRoulette(places);
+
+  // Fetch initial data from API
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      try {
+        setLoading(true);
+        const [placesData, cuisinesData] = await Promise.all([
+          api.getPlaces(),
+          api.getCuisines()
+        ]);
+        setPlaces(placesData);
+        setCuisines(cuisinesData);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch data:', err);
+        setError('Failed to load data. Please refresh the page.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialData();
+  }, []);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -61,6 +89,35 @@ export default function Home() {
     const url = `https://www.google.com/maps/search/?api=1&query=${selectedPlace.lat},${selectedPlace.lng}`;
     window.open(url, '_blank');
   };
+
+  if (loading) {
+    return (
+      <div className="w-full h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="text-center max-w-md">
+          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Error</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-2 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-screen bg-gray-50 overflow-hidden font-sans text-gray-900 select-none">
@@ -103,7 +160,7 @@ export default function Home() {
           </div>
 
           <CuisineFilter 
-            cuisines={CUISINES}
+            cuisines={cuisines}
             selectedCuisines={filters.cuisine}
             onToggle={toggleCuisine}
           />
@@ -168,7 +225,7 @@ export default function Home() {
 
       {view === 'rolling' && (
         <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center animate-fade-in">
-          <SlotMachineLoader places={MOCK_PLACES} />
+          <SlotMachineLoader places={places} />
         </div>
       )}
 
