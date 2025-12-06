@@ -1,21 +1,19 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Food Roulette",
-  description: "Feeling indecisive? Let fate decide.",
+    title: 'Food Roulette',
+    description: 'Feeling indecisive? Let fate decide.',
 };
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode;
+    children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className="font-sans text-gray-900">
-        {children}
-      </body>
-    </html>
-  );
+    return (
+        <html lang='en'>
+            <body className='font-sans text-gray-900'>{children}</body>
+        </html>
+    );
 }

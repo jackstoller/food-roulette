@@ -1,6 +1,0 @@
-{
-  "/api/places/cuisines/route": "app/api/places/cuisines/route.js",
-  "/api/places/route": "app/api/places/route.js",
-  "/api/rolls/route": "app/api/rolls/route.js",
-  "/page": "app/page.js"
-}

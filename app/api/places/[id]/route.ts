@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { MOCK_PLACES } from '@/data/mockData';
 
+type RouteParams = { params: Promise<{ id: string }> };
+
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  _request: NextRequest,
+  context: RouteParams
 ) {
   try {
-    const id = parseInt(params.id);
-    const place = MOCK_PLACES.find(p => p.id === id);
+    const { id } = await context.params;
+    const parsedId = parseInt(id);
+    const place = MOCK_PLACES.find(p => p.id === parsedId);
     
     if (!place) {
       return NextResponse.json({
