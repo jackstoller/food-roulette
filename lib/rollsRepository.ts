@@ -69,21 +69,21 @@ export function recordRoll({
     const db = getDb();
     const rolledAt = new Date().toISOString();
     const statement = db.prepare(`
-    INSERT INTO rolls (
-      user_id,
-      place_id,
-      place_name,
-      cuisine,
-      price,
-      rating,
-      address,
-      image,
-      lat,
-      lng,
-      filters,
-      rolled_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
+        INSERT INTO rolls (
+        user_id,
+        place_id,
+        place_name,
+        cuisine,
+        price,
+        rating,
+        address,
+        image,
+        lat,
+        lng,
+        filters,
+        rolled_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
 
     const filtersJson = JSON.stringify(normalizeFiltersSnapshot(filters));
 
@@ -122,25 +122,25 @@ export function recordRoll({
 export function listRolls(userId: string, limit: number = 50): RollRecord[] {
     const db = getDb();
     const statement = db.prepare(`
-    SELECT
-      id,
-      user_id,
-      place_id,
-      place_name,
-      cuisine,
-      price,
-      rating,
-      address,
-      image,
-      lat,
-      lng,
-      filters,
-      rolled_at
-    FROM rolls
-    WHERE user_id = ?
-    ORDER BY rolled_at DESC
-    LIMIT ?
-  `);
+        SELECT
+        id,
+        user_id,
+        place_id,
+        place_name,
+        cuisine,
+        price,
+        rating,
+        address,
+        image,
+        lat,
+        lng,
+        filters,
+        rolled_at
+        FROM rolls
+        WHERE user_id = ?
+        ORDER BY rolled_at DESC
+        LIMIT ?
+    `);
 
     const rows = statement.all(userId, limit);
     return rows.map(mapRowToRecord);
