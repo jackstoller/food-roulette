@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, Dice5, ChevronLeft } from 'lucide-react';
-import type { Place, Cuisine } from '@/types';
+import type { Cuisine } from '@/types';
 import { api } from '@/api/places';
 import { useRoulette } from '@/src/hooks/useRoulette';
 import MapView from '@/src/components/MapView';
@@ -18,9 +18,8 @@ import '@/src/styles/animations.css';
 export default function Home() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [locationName, setLocationName] = useState("Downtown District");
-  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [searchLocation, setSearchLocation] = useState<{lat: number, lng: number} | null>(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
-  const [places, setPlaces] = useState<Place[]>([]);
   const [cuisines, setCuisines] = useState<Cuisine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -31,23 +30,23 @@ export default function Home() {
     selectedPlace,
     filters,
     setFilters,
-    handleRoll,
-    handleReroll,
+    handleRoll: rollDice,
+    handleReroll: rerollDice,
     handleBack,
     togglePrice,
     toggleCuisine,
-  } = useRoulette(places);
+  } = useRoulette();
+
+  // Wrapper functions to inject the current map/geolocation center when rolling
+  const handleRoll = () => rollDice(searchLocation);
+  const handleReroll = () => rerollDice(searchLocation);
 
   // Fetch initial data from API
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
-        const [placesData, cuisinesData] = await Promise.all([
-          api.getPlaces(),
-          api.getCuisines()
-        ]);
-        setPlaces(placesData);
+        const cuisinesData = await api.getCuisines();
         setCuisines(cuisinesData);
         setError(null);
       } catch (err) {
@@ -66,13 +65,18 @@ export default function Home() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
+          setSearchLocation({ lat: latitude, lng: longitude });
           setLocationName("Current Location");
         },
         () => {
           console.log('Location access denied, using default location');
+          // Default to New York City so roulette still works
+          setSearchLocation({ lat: 40.7128, lng: -74.0060 });
         }
       );
+    } else {
+      // Browser does not support geolocation, fall back to default city
+      setSearchLocation({ lat: 40.7128, lng: -74.0060 });
     }
   }, []);
 
@@ -89,6 +93,12 @@ export default function Home() {
     const url = `https://www.google.com/maps/search/?api=1&query=${selectedPlace.lat},${selectedPlace.lng}`;
     window.open(url, '_blank');
   };
+
+  const onLocationChange = (lat: number, long: number) => {
+    console.log('On Location Change', lat, long);
+    setSearchLocation({ lat, lng: long });
+    setLocationName("Custom Location");
+  }
 
   if (loading) {
     return (
@@ -126,9 +136,10 @@ export default function Home() {
         view={view}
         locationName={locationName}
         filters={filters}
-        userLocation={userLocation}
+        searchLocation={searchLocation}
         onMapClick={handleMapClick}
         onCloseMap={handleCloseMap}
+        onLocationChange={onLocationChange}
         onRadiusChange={(radius) => setFilters({...filters, radius})}
       />
 
@@ -210,12 +221,12 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-gray-50 via-gray-50 to-transparent">
+        <div className="absolute bottom-0 left-0 w-full p-6 bg-linear-to-t from-gray-50 via-gray-50 to-transparent">
           <button 
             onClick={handleRoll}
             className="w-full bg-gray-900 text-white h-16 rounded-2xl font-bold text-lg shadow-xl shadow-gray-400/50 flex items-center justify-center gap-3 transform transition hover:scale-[1.02] active:scale-95 group overflow-hidden relative"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-linear-to-r from-orange-500 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <span className="relative z-10 flex items-center gap-2">
               ROLL THE DICE <Dice5 className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
             </span>
@@ -225,7 +236,7 @@ export default function Home() {
 
       {view === 'rolling' && (
         <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center animate-fade-in">
-          <SlotMachineLoader places={places} />
+          <SlotMachineLoader />
         </div>
       )}
 

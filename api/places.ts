@@ -121,5 +121,65 @@ export const api = {
       console.error('Error fetching place:', error);
       throw error;
     }
+  },
+
+  // Fetch a random place based on filters
+  async getRandomPlace(params?: PlacesQueryParams): Promise<Place> {
+    try {
+      const queryParams = new URLSearchParams();
+      queryParams.append('random', 'true');
+      
+      if (params) {
+        if (params.cuisine) {
+          if (Array.isArray(params.cuisine)) {
+            params.cuisine.forEach(c => queryParams.append('cuisine', c));
+          } else {
+            queryParams.append('cuisine', params.cuisine);
+          }
+        }
+        
+        if (params.price) {
+          if (Array.isArray(params.price)) {
+            params.price.forEach(p => queryParams.append('price', p.toString()));
+          } else {
+            queryParams.append('price', params.price.toString());
+          }
+        }
+        
+        if (params.openNow !== undefined) {
+          queryParams.append('openNow', params.openNow.toString());
+        }
+        
+        if (params.radius !== undefined) {
+          queryParams.append('radius', (params.radius * 1000).toString()); // Convert km to meters
+        }
+        
+        if (params.lat !== undefined) {
+          queryParams.append('lat', params.lat.toString());
+        }
+        
+        if (params.lng !== undefined) {
+          queryParams.append('lng', params.lng.toString());
+        }
+      }
+
+      const url = `${API_BASE_URL}/places?${queryParams.toString()}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result: ApiResponse<Place> = await response.json();
+      
+      if (!result.success || !result.data) {
+        throw new Error(result.message || 'Failed to fetch random place');
+      }
+      
+      return result.data;
+    } catch (error) {
+      console.error('Error fetching random place:', error);
+      throw error;
+    }
   }
 };

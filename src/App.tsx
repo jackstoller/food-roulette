@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User, Dice5, ChevronLeft } from 'lucide-react';
-import type { Place, Cuisine } from './types';
+import type { Cuisine } from './types';
 import { api } from './api/places';
 import { useRoulette } from './hooks/useRoulette';
 import MapView from './components/MapView';
@@ -17,11 +17,14 @@ export default function App() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [locationName, setLocationName] = useState("Downtown District");
   const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<{lat: number, lng: number} | null>(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
-  const [places, setPlaces] = useState<Place[]>([]);
   const [cuisines, setCuisines] = useState<Cuisine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Use selected location from map if set, otherwise use GPS location
+  const activeLocation = selectedLocation || userLocation;
   
   const {
     view,
@@ -34,18 +37,14 @@ export default function App() {
     handleBack,
     togglePrice,
     toggleCuisine,
-  } = useRoulette(places);
+  } = useRoulette({ userLocation: activeLocation });
 
   // Fetch initial data from API
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
-        const [placesData, cuisinesData] = await Promise.all([
-          api.getPlaces(),
-          api.getCuisines()
-        ]);
-        setPlaces(placesData);
+        const cuisinesData = await api.getCuisines();
         setCuisines(cuisinesData);
         setError(null);
       } catch (err) {
@@ -81,6 +80,12 @@ export default function App() {
 
   const handleCloseMap = () => {
     setView('landing');
+  };
+
+  const handleLocationChange = (lat: number, lng: number) => {
+    setSelectedLocation({ lat, lng });
+    setLocationName("Selected Location");
+    console.log('📍 Location updated in App:', { lat, lng });
   };
 
   const openMaps = () => {
@@ -125,10 +130,11 @@ export default function App() {
         view={view}
         locationName={locationName}
         filters={filters}
-        userLocation={userLocation}
+        userLocation={activeLocation}
         onMapClick={handleMapClick}
         onCloseMap={handleCloseMap}
         onRadiusChange={(radius) => setFilters({...filters, radius})}
+        onLocationChange={handleLocationChange}
       />
 
       <div className={`absolute top-4 right-4 z-30 transition-all duration-500 ${
@@ -224,7 +230,7 @@ export default function App() {
 
       {view === 'rolling' && (
         <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center animate-fade-in">
-          <SlotMachineLoader places={places} />
+          <SlotMachineLoader />
         </div>
       )}
 

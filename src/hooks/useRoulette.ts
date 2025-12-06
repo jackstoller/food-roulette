@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import type { Place, Filters, ViewState } from '../types';
+import { api } from '../api/places';
 
-export function useRoulette(places: Place[]) {
+export function useRoulette() {
   const [view, setView] = useState<ViewState>('landing');
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [filters, setFilters] = useState<Filters>({
@@ -11,33 +12,38 @@ export function useRoulette(places: Place[]) {
     radius: 5,
   });
 
-  const filterPlaces = (filters: Filters): Place[] => {
-    return places.filter(place => {
-      const cuisineMatch = filters.cuisine.includes("Any") || filters.cuisine.includes(place.cuisine);
-      const priceMatch = filters.price.includes(place.price);
-      const openMatch = !filters.openNow || place.open;
-      return cuisineMatch && priceMatch && openMatch;
-    });
-  };
-
-  const handleRoll = () => {
+  const handleRoll = async (searchLocation: { lat: number; lng: number } | null) => {
     setView('rolling');
     
-    setTimeout(() => {
-      const filtered = filterPlaces(filters);
-
-      if (filtered.length > 0) {
-        const winner = filtered[Math.floor(Math.random() * filtered.length)];
-        setSelectedPlace(winner);
+    setTimeout(async () => {
+      try {
+        // Use search location or default to New York City
+        const lat = searchLocation?.lat || 40.7128;
+        const lng = searchLocation?.lng || -74.0060;
+        
+        console.log('🎲 Rolling with location:', { lat, lng, radius: filters.radius });
+        
+        const place = await api.getRandomPlace({
+          cuisine: filters.cuisine,
+          price: filters.price,
+          openNow: filters.openNow,
+          radius: filters.radius,
+          lat,
+          lng,
+        });
+        
+        console.log('✅ Found place:', place);
+        setSelectedPlace(place);
         setView('result');
-      } else {
+      } catch (error) {
+        console.error('❌ Error fetching random place:', error);
         setView('empty');
       }
     }, 3000);
   };
 
-  const handleReroll = () => {
-    handleRoll();
+  const handleReroll = (searchLocation: { lat: number; lng: number } | null) => {
+    handleRoll(searchLocation);
   };
 
   const handleBack = () => {

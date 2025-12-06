@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, Dice5, ChevronLeft } from 'lucide-react';
-import type { Place, Cuisine } from '@/types';
+import type { Cuisine } from '@/types';
 import { api } from '@/api/places';
 import { useRoulette } from '../hooks/useRoulette';
 import MapView from '../components/MapView';
@@ -17,9 +17,8 @@ import ResultView from '../components/ResultView';
 export default function Home() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [locationName, setLocationName] = useState("Downtown District");
-  const [userLocation, setUserLocation] = useState<{lat: number, lng: number} | null>(null);
+  const [searchLocation, setSearchLocation] = useState<{lat: number, lng: number} | null>(null);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
-  const [places, setPlaces] = useState<Place[]>([]);
   const [cuisines, setCuisines] = useState<Cuisine[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,23 +29,23 @@ export default function Home() {
     selectedPlace,
     filters,
     setFilters,
-    handleRoll,
-    handleReroll,
+    handleRoll: rollDice,
+    handleReroll: rerollDice,
     handleBack,
     togglePrice,
     toggleCuisine,
-  } = useRoulette(places);
+  } = useRoulette();
+
+  // Wrapper functions that pass current searchLocation
+  const handleRoll = () => rollDice(searchLocation);
+  const handleReroll = () => rerollDice(searchLocation);
 
   // Fetch initial data from API
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setLoading(true);
-        const [placesData, cuisinesData] = await Promise.all([
-          api.getPlaces(),
-          api.getCuisines()
-        ]);
-        setPlaces(placesData);
+        const cuisinesData = await api.getCuisines();
         setCuisines(cuisinesData);
         setError(null);
       } catch (err) {
@@ -65,14 +64,18 @@ export default function Home() {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          setUserLocation({ lat: latitude, lng: longitude });
+          setSearchLocation({ lat: latitude, lng: longitude });
           setLocationName("Current Location");
         },
         (error) => {
           console.log('Location access denied, using default location');
-          // Keep default location
+          // Set default location (New York City)
+          setSearchLocation({ lat: 40.7128, lng: -74.0060 });
         }
       );
+    } else {
+      // Fallback if geolocation not supported
+      setSearchLocation({ lat: 40.7128, lng: -74.0060 });
     }
   }, []);
 
@@ -89,6 +92,12 @@ export default function Home() {
     const url = `https://www.google.com/maps/search/?api=1&query=${selectedPlace.lat},${selectedPlace.lng}`;
     window.open(url, '_blank');
   };
+
+  const onLocationChange = (lat: number, lng: number) => {
+    console.log('📍 Location updated:', { lat, lng });
+    setSearchLocation({ lat, lng });
+    setLocationName("Custom Location");
+  }
 
   if (loading) {
     return (
@@ -126,8 +135,9 @@ export default function Home() {
         view={view}
         locationName={locationName}
         filters={filters}
-        userLocation={userLocation}
+        searchLocation={searchLocation}
         onMapClick={handleMapClick}
+        onLocationChange={onLocationChange}
         onCloseMap={handleCloseMap}
         onRadiusChange={(radius) => setFilters({...filters, radius})}
       />
@@ -225,7 +235,7 @@ export default function Home() {
 
       {view === 'rolling' && (
         <div className="fixed inset-0 bg-white z-50 flex flex-col items-center justify-center animate-fade-in">
-          <SlotMachineLoader places={places} />
+          <SlotMachineLoader />
         </div>
       )}
 
