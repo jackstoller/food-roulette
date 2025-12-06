@@ -16,8 +16,6 @@ Food Roulette is a web application that helps users decide where to eat by rando
 **Steps:**
 
 1. **Create a `.env` file** in the project root with your Google API keys:
-   > **Note:** If you have an UAkron M365 account use [this link](https://uazips-my.sharepoint.com/:u:/g/personal/jas591_uakron_edu/IQCfcBRdqoivQa_ratM2hUhCAR209yphdWjz9YDRGxq_i3c?e=uvOGbc) to access my API keys
-
    Example:
    ```
    GOOGLE_PLACES_API_KEY=AIza...
@@ -46,8 +44,6 @@ Food Roulette is a web application that helps users decide where to eat by rando
    npm install
    ```
 2. **Create a `.env` file** in the project root with your Google API keys:
-   > **Note:** If you have an UAkron M365 account use [this link](https://uazips-my.sharepoint.com/:u:/g/personal/jas591_uakron_edu/IQCfcBRdqoivQa_ratM2hUhCAR209yphdWjz9YDRGxq_i3c?e=uvOGbc) to access my API keys
-
    Example:
    ```
    GOOGLE_PLACES_API_KEY=AIza...

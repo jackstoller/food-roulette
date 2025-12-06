@@ -1,8 +1,8 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { listRolls, normalizeFiltersSnapshot, recordRoll } from '@/lib/rollsRepository';
 import type { Place, RollFiltersSnapshot } from '@/types';
-
-export const runtime = 'nodejs';
 
 function parseLimit(value: string | null): number {
   if (!value) return 50;

@@ -1,8 +1,8 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { searchNearbyPlaces, getRandomPlace } from '@/lib/googlePlaces';
 import { buildFiltersSnapshot, recordRoll } from '@/lib/rollsRepository';
-
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
     try {
