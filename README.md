@@ -2,6 +2,10 @@
 
 Food Roulette is a web application that helps users decide where to eat by randomly selecting a restaurant from nearby options. It leverages the Google Maps and Places APIs to provide location-based restaurant suggestions.
 
+## ⚠️ Disclaimer
+
+**This project was created with the use of AI.** It is not intended to be used in a production system. The code does not always follow best practices, lacks proper security measures, and has minimal error handling. Use this project solely for educational purposes or as a learning reference—not.
+
 ## Getting Started
 
 ### Docker Build
