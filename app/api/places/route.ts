@@ -1,16 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchNearbyPlaces, getRandomPlace } from '@/lib/googlePlaces';
+import { buildFiltersSnapshot, recordRoll } from '@/lib/rollsRepository';
+
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const cuisine = searchParams.getAll('cuisine');
-    const price = searchParams.getAll('price').map(p => parseInt(p));
+    const cuisine = searchParams
+      .getAll('cuisine')
+      .filter(value => typeof value === 'string' && value.length > 0);
+    const price = searchParams
+      .getAll('price')
+      .map(p => Number.parseInt(p, 10))
+      .filter(p => !Number.isNaN(p));
     const openNow = searchParams.get('openNow') === 'true';
     const random = searchParams.get('random') === 'true';
     const lat = parseFloat(searchParams.get('lat') || '40.7128');
     const lng = parseFloat(searchParams.get('lng') || '-74.0060');
-    const radius = parseInt(searchParams.get('radius') || '5000');
+    const radiusParam = Number.parseInt(searchParams.get('radius') || '5000', 10);
+    const radius = Number.isNaN(radiusParam) ? 5000 : radiusParam;
+    const userId = searchParams.get('userId');
 
     // Return random single place if requested
     if (random) {
@@ -28,6 +38,23 @@ export async function GET(request: NextRequest) {
           success: false,
           message: 'No places match the specified filters'
         }, { status: 404 });
+      }
+
+      if (userId) {
+        try {
+          recordRoll({
+            userId,
+            place: randomPlace,
+            filters: buildFiltersSnapshot({
+              cuisine,
+              price,
+              openNow,
+              radius,
+            }),
+          });
+        } catch (dbError) {
+          console.error('Failed to record roll history:', dbError);
+        }
       }
       
       return NextResponse.json({

@@ -1,5 +1,8 @@
 import { ChevronLeft, MapPin, Star, Clock, Info, RotateCcw, Navigation } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import type { Place, Filters } from '../types';
+
+const FALLBACK_IMAGE = '/question-mark.svg';
 
 interface ResultViewProps {
   place: Place;
@@ -10,15 +13,36 @@ interface ResultViewProps {
 }
 
 export default function ResultView({ place, filters, onBack, onReroll, onOpenMaps }: ResultViewProps) {
+  const [imageSrc, setImageSrc] = useState(() => (
+    place.image && place.image.trim().length > 0 ? place.image : FALLBACK_IMAGE
+  ));
+
+  useEffect(() => {
+    setImageSrc(place.image && place.image.trim().length > 0 ? place.image : FALLBACK_IMAGE);
+  }, [place.image]);
+
+  const handleImageError = () => {
+    if (imageSrc !== FALLBACK_IMAGE) {
+      setImageSrc(FALLBACK_IMAGE);
+    }
+  };
+
+  const cuisineDescription =
+    filters.cuisine.length === 0 || filters.cuisine.includes("Any")
+      ? 'something delicious'
+      : filters.cuisine.join(', ');
+
   return (
     <div className="fixed inset-0 bg-gray-50 z-50 overflow-y-auto animate-slide-up">
       <div className="relative h-[45vh] w-full">
         <img 
-          src={place.image} 
+          src={imageSrc} 
           alt={place.name} 
           className="w-full h-full object-cover"
+          onError={handleImageError}
+          referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-90"></div>
+        <div className="absolute inset-0 bg-linear-to-t from-gray-900 via-transparent to-transparent opacity-90"></div>
         
         <button 
           onClick={onBack}
@@ -49,7 +73,7 @@ export default function ResultView({ place, filters, onBack, onReroll, onOpenMap
       <div className="p-6 pb-32">
         <div className="flex items-start gap-4 mb-8 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <div className="bg-orange-50 p-2 rounded-full">
-            <MapPin className="w-6 h-6 text-orange-500 flex-shrink-0" />
+            <MapPin className="w-6 h-6 text-orange-500 shrink-0" />
           </div>
           <div>
             <p className="text-gray-900 font-bold text-lg">{place.address}</p>
@@ -74,7 +98,7 @@ export default function ResultView({ place, filters, onBack, onReroll, onOpenMap
             <h3 className="font-bold text-orange-800 text-sm">Why this place?</h3>
           </div>
           <p className="text-orange-900/70 text-sm leading-relaxed">
-            Matches your craving for <strong>{filters.cuisine === "Any" ? "something delicious" : filters.cuisine}</strong>. 
+            Matches your craving for <strong>{cuisineDescription}</strong>. 
             Highly rated by {place.reviews} locals and within your budget range.
           </p>
         </div>
@@ -89,7 +113,7 @@ export default function ResultView({ place, filters, onBack, onReroll, onOpenMap
         </button>
         <button 
           onClick={onOpenMaps}
-          className="flex-[2] bg-gray-900 text-white h-14 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-gray-400/30 hover:bg-black transition active:scale-95"
+          className="flex-2 bg-gray-900 text-white h-14 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-gray-400/30 hover:bg-black transition active:scale-95"
         >
           <Navigation className="w-5 h-5" /> Take me there
         </button>

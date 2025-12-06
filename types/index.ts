@@ -24,4 +24,27 @@ export interface Filters {
   radius: number;
 }
 
+export interface RollFiltersSnapshot {
+  cuisine: string[];
+  price: number[];
+  openNow: boolean;
+  radiusMeters: number;
+}
+
+export interface RollRecord {
+  id: number;
+  userId: string;
+  placeId: number | null;
+  placeName: string;
+  cuisine: string;
+  price: number;
+  rating: number;
+  address: string;
+  image: string;
+  lat: number;
+  lng: number;
+  rolledAt: string;
+  filters: RollFiltersSnapshot;
+}
+
 export type ViewState = 'landing' | 'map-expanded' | 'rolling' | 'result' | 'empty';

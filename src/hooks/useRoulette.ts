@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Place, Filters, ViewState } from '../types';
 import { api } from '../api/places';
+import { getOrCreateUserId } from '../lib/userId';
 
 export function useRoulette() {
   const [view, setView] = useState<ViewState>('landing');
@@ -30,6 +31,7 @@ export function useRoulette() {
           radius: filters.radius,
           lat,
           lng,
+          userId: getOrCreateUserId(),
         });
         
         console.log('✅ Found place:', place);

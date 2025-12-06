@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 240" role="img" aria-labelledby="title desc">
+  <title>Missing Restaurant Photo</title>
+  <desc>Stylized gradient card with a large question mark used as a placeholder</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#fb923c" />
+    </linearGradient>
+    <linearGradient id="shadow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="rgba(0,0,0,0.15)" />
+      <stop offset="100%" stop-color="rgba(0,0,0,0.35)" />
+    </linearGradient>
+  </defs>
+  <rect width="360" height="240" rx="24" fill="url(#bg)" />
+  <rect width="320" height="200" x="20" y="20" rx="20" fill="rgba(255,255,255,0.15)" />
+  <circle cx="180" cy="120" r="90" fill="rgba(0,0,0,0.08)" />
+  <path d="M180 70c-26 0-45 15-45 37 0 6 4 10 10 10 5 0 9-3 10-8 2-11 11-19 25-19 14 0 23 8 23 19 0 9-7 16-19 24-11 8-16 15-16 25v6c0 6 4 10 10 10s10-4 10-10v-2c0-8 3-12 13-19 16-11 29-23 29-44 0-25-20-39-50-39zm0 110c-8 0-15 6-15 14 0 8 7 14 15 14 8 0 15-6 15-14 0-8-7-14-15-14z" fill="#fff" />
+  <path d="M180 55c-33 0-60 21-64 49-1 6 3 11 9 12s11-3 12-9c3-19 21-32 43-32 24 0 41 13 41 33 0 14-9 23-25 34-17 12-24 23-24 38v7c0 6 4 10 10 10s10-4 10-10v-5c0-11 4-17 17-26 21-15 33-30 33-53 0-32-27-48-62-48z" fill="url(#shadow)" opacity="0.35" />
+</svg>

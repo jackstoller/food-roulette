@@ -19,6 +19,7 @@ export interface PlacesQueryParams {
   radius?: number;
   lat?: number;
   lng?: number;
+  userId?: string;
 }
 
 // Helper function to filter mock data
@@ -93,6 +94,10 @@ export const api = {
         
         if (params.lng !== undefined) {
           queryParams.append('lng', params.lng.toString());
+        }
+
+        if (params.userId) {
+          queryParams.append('userId', params.userId);
         }
       }
 
@@ -224,6 +229,10 @@ export const api = {
         
         if (params.lng !== undefined) {
           queryParams.append('lng', params.lng.toString());
+        }
+
+        if (params.userId) {
+          queryParams.append('userId', params.userId);
         }
       }
 
